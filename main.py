@@ -12,7 +12,7 @@ def main():
     running = True
     plr = player.Player()
     plt = platform.Platform(600, 600, 100, 100)
-    plt1 = platform.Platform(500, 600, 100, 10, {"color": (200, 0, 0), "solid": False})
+    plt1 = platform.Platform(500, 600, 100, 10, {"color": (200, 0, 0), "solid": False, "durability":{"on": True}})
     while running:
         for event in pg.event.get():
             if event.type == pg.QUIT:
