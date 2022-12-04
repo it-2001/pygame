@@ -10,10 +10,24 @@ def main():
     ctx = pg.display.set_mode((900, 900))
     clock = pg.time.Clock()
     running = True
+    construction = None
     plr = player.Player()
-    plt = platform.Platform(600, 600, 100, 100)
-    plt1 = platform.Platform(500, 600, 100, 10, {"color": (200, 0, 0), "solid": False, "durability":{"on": True}})
+    platforms = [platform.Platform(600, 600, 100, 100, {"moving":{"sticky": True}}), platform.Platform(500, 600, 100, 10, {"color": (200, 0, 0), "solid": False, "durability": {"on": True, "regeneration": 1}, "moving":{"sticky": True}})]
     while running:
+        input.mouse.update()
+        if input.mouse.hold > -1:
+            if construction is None:
+                construction = (input.mouse.x, input.mouse.y, 0, 0)
+            else:
+                construction = (construction[0], construction[1], input.mouse.x - construction[0], input.mouse.y - construction[1])
+        else:
+            if construction is not None:
+                x = construction[0] if construction[2] >= 0 else construction[0] + construction[2]
+                y = construction[1] if construction[3] >= 0 else construction[1] + construction[3]
+                w = construction[2] if construction[2] >= 0 else construction[2] * -1
+                h = construction[3] if construction[3] >= 0 else construction[3] * -1
+                platforms.append(platform.Platform(x, y, w, h, {}))
+                construction = None
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
@@ -22,14 +36,15 @@ def main():
             if event.type == pg.KEYUP:
                 input.handle_keys(event.key, False)
         input.update()
+        platforms[0].move([plr], (input.mouse.x, input.mouse.y))
         ctx.fill((0, 0, 0))
         plr.input()
         plr.move()
         plr.world_interaction()
-        plt.collision(plr)
-        plt1.collision(plr)
-        plt.draw(ctx)
-        plt1.draw(ctx)
+        for plt in platforms:
+            plt.collision(plr)
+        for plt in platforms:
+            plt.draw(ctx)
         plr.draw(ctx)
 
         pg.display.flip()

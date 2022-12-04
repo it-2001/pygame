@@ -21,6 +21,31 @@ keys = {
 }
 
 
+class Mouse:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.lastx = 0
+        self.lasty = 0
+        self.hold = -1
+
+    def update(self):
+        position = pg.mouse.get_pos()
+        if self.hold > -1:
+            self.hold += 1
+        self.lastx = self.x
+        self.lasty = self.y
+        self.x = position[0]
+        self.y = position[1]
+        if not pg.mouse.get_pressed()[0]:
+            self.hold = -1
+        elif self.hold == -1:
+            self.hold = 0
+
+
+mouse = Mouse()
+
+
 def handle_keys(code, down=True):
     value = -1
     if down:

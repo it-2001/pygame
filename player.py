@@ -2,12 +2,12 @@ import pygame as pg
 import input
 
 
-SPEED_CAP = 12
-PLAYER_ACCELERATION = 1.6
-AIR_RESISTANCE = 0.98
-SLIDE_SLOWDOWN = 0.85
-GRAVITY = 0.8
-JUMP_STRENGTH = 21
+SPEED_CAP = 10
+PLAYER_ACCELERATION = 1.4
+AIR_RESISTANCE = 0.94
+SLIDE_SLOWDOWN = 0.8
+GRAVITY = 0.7
+JUMP_STRENGTH = 16
 MAX_JUMPS = 2
 
 
@@ -22,6 +22,8 @@ class Player:
         self.color = (0, 200, 20)
         self.jumps = MAX_JUMPS
         self.lock_jump = False
+        self.last_x = self.x
+        self.last_y = self.y
 
     def draw(self, ctx):
         pg.draw.rect(ctx, self.color, (self.x, self.y, self.w, self.h))
@@ -39,6 +41,8 @@ class Player:
             self.lock_jump = False
 
     def move(self):
+        self.last_x = self.x
+        self.last_y = self.y
         self.x += self.xs
         self.y += self.ys
 
