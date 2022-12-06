@@ -12,14 +12,18 @@ def main():
     running = True
     construction = None
     plr = player.Player()
-    platforms = [platform.Platform(600, 600, 100, 100, {"moving":{"sticky": True}}), platform.Platform(500, 600, 100, 10, {"color": (200, 0, 0), "solid": False, "durability": {"on": True, "regeneration": 1}, "moving":{"sticky": True}})]
+    platforms = [platform.Platform(600, 600, 100, 100, {"moving": {"sticky": True, "on": True}}),
+                 platform.Platform(500, 600, 100, 10,
+                                   {"color": (200, 0, 0), "solid": False, "durability": {"on": True, "regeneration": 1},
+                                    "moving": {"sticky": True}})]
     while running:
         input.mouse.update()
         if input.mouse.hold > -1:
             if construction is None:
                 construction = (input.mouse.x, input.mouse.y, 0, 0)
             else:
-                construction = (construction[0], construction[1], input.mouse.x - construction[0], input.mouse.y - construction[1])
+                construction = (
+                construction[0], construction[1], input.mouse.x - construction[0], input.mouse.y - construction[1])
         else:
             if construction is not None:
                 x = construction[0] if construction[2] >= 0 else construction[0] + construction[2]
@@ -36,12 +40,12 @@ def main():
             if event.type == pg.KEYUP:
                 input.handle_keys(event.key, False)
         input.update()
-        platforms[0].move([plr], (input.mouse.x, input.mouse.y))
         ctx.fill((0, 0, 0))
         plr.input()
         plr.move()
         plr.world_interaction()
         for plt in platforms:
+            plt.update([player])
             plt.collision(plr)
         for plt in platforms:
             plt.draw(ctx)

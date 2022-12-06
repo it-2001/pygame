@@ -1,3 +1,5 @@
+import math
+
 import pygame as pg
 import input
 from player import PLAYER_ACCELERATION
@@ -18,12 +20,13 @@ specification = {
     },
     "moving": {
         "on": False,
-        "path": [(0, 0), (50, 50)],
-        "function": "linear",  # defines how it moves (linear, sin)
+        "path": [(0, 0), (50, 50), (500, 100), (200, 0), (50, 50)],
+        "function": "sin",  # defines how it moves (linear, sin)
         "speed": 60,  # how many frames it takes to get from one point to another
-        "one-way": False,  # if true: platform teleports to the starting location after completing path
-        "wait": 10,  # waits for x frames on each point
+        "one-way": True,  # if true: platform teleports to the starting location after completing path
+        "wait": 20,  # waits for x frames on each point
         "sticky": False,  # if entities stick to the moving platform
+        "cycles": "reset"  # how to repeat path (rotation, reset)
     }
 }
 CALC_ACCURACY = 1 * PLAYER_ACCELERATION
@@ -38,10 +41,55 @@ class Platform:
         self.w = w
         self.h = h
         self.data = data
+        self.time = 0
         self.durability_data = {
             "durability": 0,
             "reset": 0,
         }
+
+    def update(self, entities):
+        if self.get_nested_attrib("moving", "on"):
+            path = self.get_nested_attrib("moving", "path")
+            speed = self.get_nested_attrib("moving", "speed")
+            wait = self.get_nested_attrib("moving", "wait")
+            segment = self.get_moving_segment(path, speed, wait)
+            fraction = self.get_moving_fraction(speed, wait, reversed=segment[1])
+            self.move(entities, self.get_new_pos(segment[0], fraction, path))
+        self.time += 1
+
+    def get_moving_segment(self, path, speed, wait):
+        cycles = self.get_nested_attrib("moving", "cycles")
+        if cycles == "reset":
+            seg = math.floor(self.time / (speed + wait))
+            return seg % (len(path) - 1), False
+        if cycles == "rotation":  # TODO: not working xd
+            seg = math.floor(self.time / (speed + wait))
+            seg = seg % (len(path) * 2 - 2)
+            if seg < len(path):
+                return seg, False
+            return len(path) * 2 - seg - len(path), True
+
+    def get_moving_fraction(self, speed, wait, reversed= False):
+        if self.time % (speed + wait) < wait:
+            return 0
+        speed = speed + wait
+        constant = (self.time % speed - wait) / (speed - wait)
+        function = self.get_nested_attrib("moving", "function")
+        result = 0
+        if function == "linear":
+            result = constant
+        if function == "sin":
+            result = math.sin(0.5 * math.pi * constant)
+        return 1 - result if reversed else result
+
+    def get_new_pos(self, segment, fraction, path):
+        if segment == len(path) - 1 and self.get_nested_attrib("moving", "one-way"):
+            return path[segment][0], path[segment][1]
+        x1 = path[segment][0]
+        y1 = path[segment][1]
+        x2 = path[segment + 1][0]
+        y2 = path[segment + 1][1]
+        return (x2 - x1) * fraction + x1, (y2 - y1) * fraction + y1
 
     def get_attrib(self, attrib):
         if attrib in self.data:
@@ -92,12 +140,11 @@ class Platform:
         return False
 
     def move(self, entities, coords):
-        if self.get_nested_attrib("moving", "sticky"):
-            for entity in entities:
-                print(entity.last_x)
-                if self.on_top(entity):
-                    entity.x = coords[0] + entity.x - self.x
-                    entity.y = coords[1] + entity.y - self.y
+        # if self.get_nested_attrib("moving", "sticky"):
+        #     for entity in entities:
+        #         if self.on_top(entity):
+        #             entity.x = coords[0] + entity.x - self.x
+        #             entity.y = coords[1] + entity.y - self.y
         self.x = coords[0]
         self.y = coords[1]
 
@@ -110,7 +157,7 @@ class Platform:
     def collision(self, entity):
         on_top = self.on_top(entity)
         fully_on_top = self.fully_on_top(entity)
-        solid = self.trigger_durability(fully_on_top)
+        solid = self.trigger_durability(on_top)
         if entity.x - self.w < self.x < entity.x + entity.w and entity.y - self.h < self.y < entity.y + entity.h:
             if not self.get_attrib("fall-through") and on_top and not input.key_down("down") and solid:
                 entity.ys = 0
