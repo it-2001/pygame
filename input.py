@@ -13,6 +13,7 @@ class Key:
         if self.hold > -1:
             self.hold += 1
 
+
 keys = {
     "up": Key(pg.K_w),  # 1073741906
     "left": Key(pg.K_a),  # 1073741904
@@ -28,6 +29,7 @@ class Mouse:
         self.lastx = 0
         self.lasty = 0
         self.hold = -1
+        self.consumed = False
 
     def update(self):
         position = pg.mouse.get_pos()
@@ -41,6 +43,7 @@ class Mouse:
             self.hold = -1
         elif self.hold == -1:
             self.hold = 0
+        self.consumed = False
 
 
 mouse = Mouse()

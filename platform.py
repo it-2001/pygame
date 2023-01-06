@@ -11,11 +11,11 @@ specification = {
     "color": (160, 160, 0),
     "damaged-color": (100, 100, 0),
     "fallen-color": (50, 50, 0),
-    "fall-through": False,  # you can jump on it from below and crouch to fall through
+    "fall-through": False,  # you can jump on it from below and crouch to fall through, disable "solid" first
     "durability": {
         "on": False,  # allow
-        "reset": 60,  # how long is fallen (-1 is infinite)
-        "durability": 60,  # how long can you stand on it (-1 is infinite)
+        "reset": 60,  # how long is fallen (-1 is infinite) TODO
+        "durability": 60,  # how long can you stand on it (-1 is infinite) TODO
         "regeneration": True,
     },
     "moving": {
@@ -25,8 +25,8 @@ specification = {
         "speed": 60,  # how many frames it takes to get from one point to another
         "one-way": True,  # if true: platform teleports to the starting location after completing path
         "wait": 20,  # waits for x frames on each point
-        "sticky": False,  # if entities stick to the moving platform
-        "cycles": "reset"  # how to repeat path (rotation, reset)
+        "sticky": True,  # if entities stick to the moving platform
+        "cycles": "none"  # how to repeat path (rotation, reset, reset-smooth)
     }
 }
 CALC_ACCURACY = 1 * PLAYER_ACCELERATION
@@ -46,6 +46,18 @@ class Platform:
             "durability": 0,
             "reset": 0,
         }
+        self.init()
+
+    def init(self):
+        if self.get_nested_attrib("moving", "cycles") == "rotation":
+            path = self.get_nested_attrib("moving", "path")
+            i = len(path) - 2
+            while i >= 0:
+                path.append(path[i])
+                i -= 1
+        elif self.get_nested_attrib("moving", "cycles") == "reset-smooth":
+            path = self.get_nested_attrib("moving", "path")
+            path.append(path[0])
 
     def update(self, entities):
         if self.get_nested_attrib("moving", "on"):
@@ -59,15 +71,17 @@ class Platform:
 
     def get_moving_segment(self, path, speed, wait):
         cycles = self.get_nested_attrib("moving", "cycles")
-        if cycles == "reset":
-            seg = math.floor(self.time / (speed + wait))
-            return seg % (len(path) - 1), False
-        if cycles == "rotation":  # TODO: not working xd
-            seg = math.floor(self.time / (speed + wait))
-            seg = seg % (len(path) * 2 - 2)
-            if seg < len(path):
-                return seg, False
-            return len(path) * 2 - seg - len(path), True
+        seg = math.floor(self.time / (speed + wait))
+        return seg % (len(path) - 1), False
+        # if cycles == "reset":
+        #     seg = math.floor(self.time / (speed + wait))
+        #     return seg % (len(path) - 1), False
+        # if cycles == "rotation":  # TODO: not working xd
+        #     seg = math.floor(self.time / (speed + wait))
+        #     seg = seg % (len(path) * 2 - 2)
+        #     if seg < len(path):
+        #         return seg, False
+        #     return len(path) * 2 - seg - len(path), True
 
     def get_moving_fraction(self, speed, wait, reversed= False):
         if self.time % (speed + wait) < wait:

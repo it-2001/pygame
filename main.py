@@ -2,6 +2,7 @@ import pygame as pg
 import input
 import player
 import platform
+import button
 
 
 def main():
@@ -12,10 +13,11 @@ def main():
     running = True
     construction = None
     plr = player.Player()
-    platforms = [platform.Platform(600, 600, 100, 100, {"moving": {"sticky": True, "on": True}}),
+    platforms = [platform.Platform(600, 600, 100, 100, {"moving": {"sticky": True, "on": True, "cycles":"rotation"}}),
                  platform.Platform(500, 600, 100, 10,
                                    {"color": (200, 0, 0), "solid": False, "durability": {"on": True, "regeneration": 1},
                                     "moving": {"sticky": True}})]
+    buttons = [button.Button(50, 50, 100, 50, {"colors": {"normal":(60, 30, 90)}})]
     while running:
         input.mouse.update()
         if input.mouse.hold > -1:
@@ -44,6 +46,9 @@ def main():
         plr.input()
         plr.move()
         plr.world_interaction()
+        for butt in buttons:
+            if butt.draw(ctx, input.mouse):
+                break
         for plt in platforms:
             plt.update([player])
             plt.collision(plr)
