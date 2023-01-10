@@ -16,7 +16,11 @@ def main():
     platforms = [platform.Platform(600, 600, 100, 100, {"moving": {"sticky": True, "on": True, "cycles":"rotation"}}),
                  platform.Platform(500, 600, 100, 10,
                                    {"color": (200, 0, 0), "solid": False, "durability": {"on": True, "regeneration": 1},
-                                    "moving": {"sticky": True}})]
+                                    "moving": {"sticky": True}}),
+                 platform.Platform(0, 0, 100, 10,
+                                   {"color": (200, 0, 0), "solid": True,
+                                    "moving": {"on": True, "sticky": True, "path": [(50, 200), (600, 200)], "cycles":"rotation", "function":"linear"}})
+                 ]
     buttons = [button.Button(50, 50, 100, 50, {"colors": {"normal":(60, 30, 90)}})]
     while running:
         input.mouse.update()
@@ -50,7 +54,7 @@ def main():
             if butt.draw(ctx, input.mouse):
                 break
         for plt in platforms:
-            plt.update([player])
+            plt.update([plr])
             plt.collision(plr)
         for plt in platforms:
             plt.draw(ctx)

@@ -154,11 +154,11 @@ class Platform:
         return False
 
     def move(self, entities, coords):
-        # if self.get_nested_attrib("moving", "sticky"):
-        #     for entity in entities:
-        #         if self.on_top(entity):
-        #             entity.x = coords[0] + entity.x - self.x
-        #             entity.y = coords[1] + entity.y - self.y
+        if self.get_nested_attrib("moving", "sticky"):
+            for entity in entities:
+                if self.on_top(entity):
+                    entity.x = coords[0] + entity.x - self.x
+                    entity.y = coords[1] + entity.y - self.y
         self.x = coords[0]
         self.y = coords[1]
 
