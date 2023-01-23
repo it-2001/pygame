@@ -19,9 +19,11 @@ def main():
                                     "moving": {"sticky": True}}),
                  platform.Platform(0, 0, 100, 10,
                                    {"color": (200, 0, 0), "solid": True,
-                                    "moving": {"on": True, "sticky": True, "path": [(50, 200), (600, 200)], "cycles":"rotation", "function":"linear"}})
+                                    "moving": {"on": True, "sticky": True, "path": [(50, 200), (600, 200)], "cycles":"rotation", "function":"sin", "wait": 0, "speed": 300}})
                  ]
-    buttons = [button.Button(50, 50, 100, 50, {"colors": {"normal":(60, 30, 90)}})]
+    def printsmth():
+        print("smth")
+    buttons = [button.Button(50, 50, 100, 50, {"colors": {"normal":(60, 30, 90)}}, onclick=printsmth)]
     while running:
         input.mouse.update()
         if input.mouse.hold > -1:
@@ -48,8 +50,10 @@ def main():
         input.update()
         ctx.fill((0, 0, 0))
         plr.input()
-        plr.move()
         plr.world_interaction()
+
+        plr.move()
+
         for butt in buttons:
             if butt.draw(ctx, input.mouse):
                 break
@@ -58,6 +62,7 @@ def main():
             plt.collision(plr)
         for plt in platforms:
             plt.draw(ctx)
+
         plr.draw(ctx)
 
         pg.display.flip()
