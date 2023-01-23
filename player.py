@@ -8,17 +8,18 @@ AIR_RESISTANCE = 0.94
 SLIDE_SLOWDOWN = 0.8
 GRAVITY = 0.7
 JUMP_STRENGTH = 16
-MAX_JUMPS = 200000
+MAX_JUMPS = 1
 
 
 class Player:
-    def __init__(self):
+    def __init__(self, keyset):
         self.x = 0
         self.y = 0
         self.xs = 0
         self.ys = 0
         self.w = 20
         self.h = 40
+        self.keyset = keyset
         self.color = (0, 200, 20)
         self.jumps = MAX_JUMPS
         self.lock_jump = False
@@ -29,15 +30,15 @@ class Player:
         pg.draw.rect(ctx, self.color, (self.x, self.y, self.w, self.h))
 
     def input(self):
-        if input.key_down("left") and -SPEED_CAP < self.xs < SPEED_CAP:
+        if input.key_down(self.keyset["left"]) and -SPEED_CAP < self.xs < SPEED_CAP:
             self.xs -= PLAYER_ACCELERATION
-        if input.key_down("right") and -SPEED_CAP < self.xs < SPEED_CAP:
+        if input.key_down(self.keyset["right"]) and -SPEED_CAP < self.xs < SPEED_CAP:
             self.xs += PLAYER_ACCELERATION
-        if input.key_down("up") and self.jumps > 0 and not self.lock_jump:
+        if input.key_down(self.keyset["up"]) and self.jumps > 0 and not self.lock_jump:
             self.jumps -= 1
             self.ys = -JUMP_STRENGTH
             self.lock_jump = True
-        if not input.key_down("up"):
+        if not input.key_down(self.keyset["up"]):
             self.lock_jump = False
 
     def move(self):
@@ -54,7 +55,7 @@ class Player:
             self.y = 900 - self.h
             self.ys = 0
             self.jumps = MAX_JUMPS
-            if not input.key_down("up"):
+            if not input.key_down(self.keyset["up"]):
                 self.lock_jump = False
 
     def on_ground(self):

@@ -19,6 +19,10 @@ keys = {
     "left": Key(pg.K_a),  # 1073741904
     "down": Key(pg.K_s),  # 1073741905
     "right": Key(pg.K_d),  # 1073741903
+    "up1": Key(pg.K_UP),  # 1073741906
+    "left1": Key(pg.K_LEFT),  # 1073741904
+    "down1": Key(pg.K_DOWN),  # 1073741905
+    "right1": Key(pg.K_RIGHT),  # 1073741903
 }
 
 

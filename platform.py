@@ -46,6 +46,7 @@ class Platform:
             "durability": 0,
             "reset": 0,
         }
+        self.first_collision = True
         self.init()
 
     def init(self):
@@ -173,7 +174,7 @@ class Platform:
         fully_on_top = self.fully_on_top(entity)
         solid = self.trigger_durability(on_top)
         if entity.x - self.w < self.x < entity.x + entity.w and entity.y - self.h < self.y < entity.y + entity.h:
-            if not self.get_attrib("fall-through") and on_top and not input.key_down("down") and solid:
+            if not self.get_attrib("fall-through") and on_top and not input.key_down(entity.keyset["down"]) and solid:
                 entity.ys = 0
                 entity.y = self.y - entity.h
                 entity.on_ground()

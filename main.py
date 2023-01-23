@@ -12,7 +12,8 @@ def main():
     clock = pg.time.Clock()
     running = True
     construction = None
-    plr = player.Player()
+    plr = player.Player({"down":"down", "up":"up", "right":"right", "left":"left"})
+    plr2 = player.Player({"down":"down1", "up":"up1", "right":"right1", "left":"left1"})
     platforms = [platform.Platform(600, 600, 100, 100, {"moving": {"sticky": True, "on": True, "cycles":"rotation"}}),
                  platform.Platform(500, 600, 100, 10,
                                    {"color": (200, 0, 0), "solid": False, "durability": {"on": True, "regeneration": 1},
@@ -22,7 +23,7 @@ def main():
                                     "moving": {"on": True, "sticky": True, "path": [(50, 200), (600, 200)], "cycles":"rotation", "function":"sin", "wait": 0, "speed": 300}})
                  ]
     def printsmth():
-        print("smth")
+        print("you clicked on button")
     buttons = [button.Button(50, 50, 100, 50, {"colors": {"normal":(60, 30, 90)}}, onclick=printsmth)]
     while running:
         input.mouse.update()
@@ -53,17 +54,23 @@ def main():
         plr.world_interaction()
 
         plr.move()
+        plr2.input()
+        plr2.world_interaction()
+
+        plr2.move()
 
         for butt in buttons:
             if butt.draw(ctx, input.mouse):
                 break
         for plt in platforms:
-            plt.update([plr])
+            plt.update([plr, plr2])
             plt.collision(plr)
+            plt.collision(plr2)
         for plt in platforms:
             plt.draw(ctx)
 
         plr.draw(ctx)
+        plr2.draw(ctx)
 
         pg.display.flip()
         clock.tick(60)
